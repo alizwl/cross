@@ -277,7 +277,7 @@ public:
     bool perform(int *responseCode)
     {
         int error = curl_easy_perform(m_curl);
-        CCLog("curl error: %d", error);
+        //CCLog("curl error: %d", error);
         if (CURLE_OK != error)
             return false;
         CURLcode code = curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, responseCode);

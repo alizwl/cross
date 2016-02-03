@@ -5,5 +5,8 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="lib" path="/Users/csh/Documents/developments/CrossApp-master/samples/127/proj.android/libs/android-support-v4.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/csh/Documents/software/android/sdk/extras/google/gcm/samples/gcm-demo-client/libs/gcm.jar"/>
+	<classpathentry kind="lib" path="/Users/csh/Documents/software/android/sdk/platforms/android-20/android.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -150,7 +150,7 @@ namespace CADevice
     
     CC_DLL bool isNetWorkAvailble();
     
-    CC_DLL void sendLocalNotification(const char* title, const char* content, unsigned long time, const char* id);
+    CC_DLL void sendLocalNotification(const char* title, const char* content, long time, const char* id);
     
     CC_DLL void cancelLocalNotification(const char* id);
     

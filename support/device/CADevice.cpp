@@ -90,6 +90,11 @@ namespace CADevice
         
     }
     
+    void cancelLocalNotification(const char* id)
+    {
+        
+    }
+    
     CAWifiInfo getWifiConnectionInfo()
     {
         return CAWifiInfo();

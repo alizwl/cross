@@ -41,10 +41,22 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
+import com.google.android.gcm.GCMRegistrar;
 
 @SuppressLint("SdCardPath")
 public class AndroidNativeTool
 {
+	
+    public static final String TAG = "AndroidPush";
+
+    private static boolean isBound = false;
+    protected volatile static boolean registrationError = false;
+    
 	private static AlertDialog mDialog = null;
 	private static Activity s_pContext;
 	native static void NativeReturn( String arg1 , Object arg2 );
@@ -52,6 +64,90 @@ public class AndroidNativeTool
 	public AndroidNativeTool( final Activity context )
 	{
 		s_pContext = context;
+		
+	}
+	
+	public static boolean isBound() {
+		boolean isActivityPaused = true;
+		try {
+			SharedPreferences ed = s_pContext.getSharedPreferences("activityInfo", 0);
+			isActivityPaused = ed.getBoolean("activityPaused",true);
+		} catch(Exception e) {
+			Log.e(TAG, "Failed to save SharedPreferences");
+		}
+        return s_pContext != null && !isActivityPaused && isBound;
+    }
+	
+	
+	public String AndroidPushRegisterId() {
+        String registerId;
+        int tries = 50;
+        while ((registerId = GCMRegistrar.getRegistrationId(s_pContext)).equals("") && !registrationError && tries-- > 0) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {}
+        }
+        return GCMRegistrar.getRegistrationId(s_pContext);
+    }
+    
+    public boolean AndroidPushGetLaunchNotification() {
+        if (s_pContext != null && s_pContext.getIntent() != null && s_pContext.getIntent().getBooleanExtra("InitiatedByAndroidPushNotification", false)) {
+            NotificationManager notificationManager = (NotificationManager)s_pContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(s_pContext.getIntent().getStringExtra("name"), 0);
+            GCMIntentService.createNotification(s_pContext, s_pContext.getIntent(), true);
+			AndroidPushResetLaunchNotification();
+            return true;
+        }
+        return false;
+    }
+	
+	public void AndroidPushResetLaunchNotification() {
+		s_pContext.getIntent().removeExtra("InitiatedByAndroidPushNotification");
+	}
+    
+    public static void AndroidPushCreateNotification(String name, String data, String title, String message, String icon, String sound, long time) {
+        Intent i = new Intent();
+        i.putExtra("local", true);
+        i.putExtra("name", name);
+        i.putExtra("data", data);
+        i.putExtra("title", title);
+        i.putExtra("message", message);
+        if (icon != null) {
+            //i.putExtra("icon", icon);
+        }
+        if (sound != null) {
+            //i.putExtra("sound", sound);
+        }
+        if (time > 0) {
+            i.putExtra("time", time);
+            Log.d(TAG, " " + time);
+            AlarmReceiver.create(s_pContext, i, time);
+        }
+    }
+	
+	public void AndroidPushClearAllNotifications()
+	{
+		GCMIntentService.clearNotificationsList();
+		NotificationManager notificationManager = (NotificationManager)s_pContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancelAll();
+	}
+
+    public void AndroidPushSetDefaultIcon(String name) {
+        GCMIntentService.setDefaultIcon(name);
+    }
+
+    public static void AndroidPushLocalizedHeader(String header) {
+        GCMIntentService.setLocalizedHeader(header);
+    }
+    
+	//, long time, final String id
+	public static void sendLocalNotification(final String title, final String content, final String id, int deltaTime)
+	{
+		AndroidPushCreateNotification("name1", "data1", title, content, "", "", System.currentTimeMillis() + 5000);
+	}
+	
+	public static void cancelLocalNotification(final String id)
+	{
 	}
 	
 	public static void ShowDlg( String[] args )
