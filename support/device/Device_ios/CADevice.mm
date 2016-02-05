@@ -93,7 +93,7 @@ void startLocation(CALocationDelegate* target)
  
 */
     
-void sendLocalNotification(const char* title,const char* content,unsigned long time, const char* id)
+void sendLocalNotification(const char* title,const char* content, long time, const char* id)
 {
 //    let _app = UIApplication.sharedApplication()
 //    _app.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert|UIUserNotificationType.Badge|UIUserNotificationType.Sound, categories: nil));
@@ -125,13 +125,15 @@ void sendLocalNotification(const char* title,const char* content,unsigned long t
         // 设置时区
         notification.timeZone = [NSTimeZone defaultTimeZone];
         // 设置重复间隔
-        //notification.repeatInterval = kCFCalendarUnitDay;
+        notification.repeatInterval = NSCalendarUnitMinute;
         // 推送声音
         notification.soundName = UILocalNotificationDefaultSoundName;
+        // title
+        //notification.alertTitle = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
         // 推送内容
         notification.alertBody = [NSString stringWithCString:content encoding:NSUTF8StringEncoding];
         //显示在icon上的红色圈中的数子
-        //notification.applicationIconBadgeNumber = 1;
+        notification.applicationIconBadgeNumber = 0;
         //设置userinfo 方便在之后需要撤销的时候使用
         NSDictionary *info = [NSDictionary dictionaryWithObject:[[NSString alloc] initWithUTF8String:id] forKey:@"key"];
         notification.userInfo = info;
@@ -179,6 +181,31 @@ void cancelLocalNotification(const char* key)
     }
 }
 
+void getLocalNotificationList(std::vector<LocalNoticeMsg>& msgList)
+{
+    
+    UIApplication *app = [UIApplication sharedApplication];
+    NSArray *localArr = [app scheduledLocalNotifications];
+    if (localArr)
+    {
+        msgList.clear();
+        for (UILocalNotification *noti in localArr)
+        {
+            LocalNoticeMsg tmp;
+            tmp.startTime = [noti.fireDate timeIntervalSince1970 ];
+            NSDictionary *dict = noti.userInfo;
+            if (dict)
+            {
+                NSString *inKey = [dict objectForKey:@"key"];
+                tmp.nid =[inKey cStringUsingEncoding: NSUTF8StringEncoding];
+            }
+            tmp.title = [noti.alertBody cStringUsingEncoding: NSUTF8StringEncoding];
+            tmp.content = [noti.alertBody cStringUsingEncoding: NSUTF8StringEncoding];
+            tmp.type = 0;
+            msgList.push_back(tmp);
+        }
+    }
+}
     
 float getScreenBrightness()
 {

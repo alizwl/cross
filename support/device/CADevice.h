@@ -106,6 +106,15 @@ struct CC_DLL CAAddressBookRecord
     std::string fullname;
 };
 
+struct LocalNoticeMsg
+{
+    int type;
+    std::string nid;
+    std::string title;
+    std::string content;
+    long startTime;
+};
+
 typedef enum
 {
     CANetWorkTypeWifi=0,
@@ -153,6 +162,8 @@ namespace CADevice
     CC_DLL void sendLocalNotification(const char* title, const char* content, long time, const char* id);
     
     CC_DLL void cancelLocalNotification(const char* id);
+    
+    CC_DLL void getLocalNotificationList(std::vector<LocalNoticeMsg>& msgList);
     
     CC_DLL CAWifiInfo getWifiConnectionInfo();
     
